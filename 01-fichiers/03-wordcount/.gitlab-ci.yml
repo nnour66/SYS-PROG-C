@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+image: registry.app.unistra.fr/montavont/img-docker/progsys:latest
+
+build_1.3:
+  stage: build
+  script:
+    - cd 01-fichiers/03-wordcount
+    - scons
+  artifacts:
+    paths:
+      - 01-fichiers/03-wordcount/wordcount
+
+# run tests using the binary build before
+test_1.3:
+  stage: test
+  needs: [build_1.3]
+  script:
+  - |
+    echo "starting test"
+    cd 01-fichiers/03-wordcount
+    ./tests.sh

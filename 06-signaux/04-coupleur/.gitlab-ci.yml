@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+image: registry.app.unistra.fr/montavont/img-docker/progsys:latest
+
+build_6.4:
+  stage: build
+  script:
+    - cd 06-signaux/04-coupleur
+    - scons
+  artifacts:
+    paths:
+      - 06-signaux/04-coupleur/coupleur
+
+# run tests using the binary build before
+test_6.4:
+  stage: test
+  needs: [build_6.4]
+  script:
+  - |
+    echo "starting test"
+    cd 06-signaux/04-coupleur
+    ./tests.sh

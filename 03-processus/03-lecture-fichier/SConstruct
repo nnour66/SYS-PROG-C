@@ -1,0 +1,14 @@
+sources = Glob ("*.c")
+CFLAGS = ["-Wall", "-Wextra", "-Werror", "-g", "-pedantic", '-fsanitize=address', '-fno-omit-frame-pointer']
+
+env = Environment (CCFLAGS = CFLAGS)
+env.Append(LINKFLAGS=['-fsanitize=address'])
+
+color = ARGUMENTS.get('color', 0)
+if int (color):
+   env.Append (CCFLAGS='-D COLOR')
+
+env.Program (sources)
+
+# Nettoyage explicite
+Clean('.', '.sconsign.dblite')

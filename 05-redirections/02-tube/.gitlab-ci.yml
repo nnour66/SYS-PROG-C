@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+image: registry.app.unistra.fr/montavont/img-docker/progsys:latest
+
+build_5.2:
+  stage: build
+  script:
+    - cd 05-redirections/02-tube
+    - scons
+  artifacts:
+    paths:
+      - 05-redirections/02-tube/tube
+
+# run tests using the binary build before
+test_5.2:
+  stage: test
+  needs: [build_5.2]
+  script:
+  - |
+    echo "starting test"
+    cd 05-redirections/02-tube
+    ./tests.sh

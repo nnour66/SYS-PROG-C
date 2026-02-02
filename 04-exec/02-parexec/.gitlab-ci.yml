@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+image: registry.app.unistra.fr/montavont/img-docker/progsys:latest
+
+build_4.2:
+  stage: build
+  script:
+    - cd 04-exec/02-parexec
+    - scons
+  artifacts:
+    paths:
+      - 04-exec/02-parexec/parexec
+
+# run tests using the binary build before
+test_4.2:
+  stage: test
+  needs: [build_4.2]
+  script:
+  - |
+    echo "starting test"
+    cd 04-exec/02-parexec
+    ./tests.sh

@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+image: registry.app.unistra.fr/montavont/img-docker/progsys:latest
+
+build_3.3:
+  stage: build
+  script:
+    - cd 03-processus/03-lecture-fichier
+    - scons
+  artifacts:
+    paths:
+      - 03-processus/03-lecture-fichier/lecture
+
+# run tests using the binary build before
+test_3.3:
+  stage: test
+  needs: [build_3.3]
+  script:
+  - |
+    echo "starting test"
+    cd 03-processus/03-lecture-fichier
+    ./tests.sh

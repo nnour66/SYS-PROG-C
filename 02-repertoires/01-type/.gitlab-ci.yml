@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+image: registry.app.unistra.fr/montavont/img-docker/progsys:latest
+
+build_2.1:
+  stage: build
+  script:
+    - cd 02-repertoires/01-type
+    - scons
+  artifacts:
+    paths:
+      - 02-repertoires/01-type/isdir
+
+# run tests using the binary build before
+test_2.1:
+  stage: test
+  needs: [build_2.1]
+  script:
+  - |
+    echo "starting test"
+    cd 02-repertoires/01-type
+    ./tests.sh

@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+image: registry.app.unistra.fr/montavont/img-docker/progsys:latest
+
+build_1.4:
+  stage: build
+  script:
+    - cd 01-fichiers/04-copie
+    - scons
+  artifacts:
+    paths:
+      - 01-fichiers/04-copie/copie
+
+# run tests using the binary build before
+test_1.4:
+  stage: test
+  needs: [build_1.4]
+  script:
+  - |
+    echo "starting test"
+    cd 01-fichiers/04-copie
+    ./tests.sh

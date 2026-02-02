@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+image: registry.app.unistra.fr/montavont/img-docker/progsys:latest
+
+build_3.1:
+  stage: build
+  script:
+    - cd 03-processus/01-creation-fils
+    - scons
+  artifacts:
+    paths:
+      - 03-processus/01-creation-fils/creer-fils
+
+# run tests using the binary build before
+test_3.1:
+  stage: test
+  needs: [build_3.1]
+  script:
+  - |
+    echo "starting test"
+    cd 03-processus/01-creation-fils
+    ./tests.sh

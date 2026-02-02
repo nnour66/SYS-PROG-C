@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+image: registry.app.unistra.fr/montavont/img-docker/progsys:latest
+
+build_5.4:
+  stage: build
+  script:
+    - cd 05-redirections/04-calculatrice
+    - scons
+  artifacts:
+    paths:
+      - 05-redirections/04-calculatrice/calculatrice
+
+# run tests using the binary build before
+test_5.4:
+  stage: test
+  needs: [build_5.4]
+  script:
+  - |
+    echo "starting test"
+    cd 05-redirections/04-calculatrice
+    ./tests.sh

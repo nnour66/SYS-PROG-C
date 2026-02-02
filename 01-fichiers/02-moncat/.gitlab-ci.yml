@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+image: registry.app.unistra.fr/montavont/img-docker/progsys:latest
+
+build_1.2:
+  stage: build
+  script:
+    - cd 01-fichiers/02-moncat
+    - scons
+  artifacts:
+    paths:
+      - 01-fichiers/02-moncat/moncat
+
+# run tests using the binary build before
+test_1.2:
+  stage: test
+  needs: [build_1.2]
+  script:
+  - |
+    echo "starting test"
+    cd 01-fichiers/02-moncat
+    ./tests.sh

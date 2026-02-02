@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+
+image: registry.app.unistra.fr/montavont/img-docker/progsys:latest
+
+build_5.3:
+  stage: build
+  script:
+    - cd 05-redirections/03-criblage
+    - scons
+  artifacts:
+    paths:
+      - 05-redirections/03-criblage/crible
+
+# run tests using the binary build before
+test_5.3:
+  stage: test
+  needs: [build_5.3]
+  script:
+  - |
+    echo "starting test"
+    cd 05-redirections/03-criblage
+    ./tests.sh

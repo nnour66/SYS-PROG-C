@@ -1,0 +1,236 @@
+stages:
+  - triggers
+
+trigger_exo1.1:
+  stage: triggers
+  trigger:
+    include: 01-fichiers/01-test-droits/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 01-fichiers/01-test-droits/*.c
+
+trigger_exo1.2:
+  stage: triggers
+  trigger:
+    include: 01-fichiers/02-moncat/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 01-fichiers/02-moncat/*.c
+
+trigger_exo1.3:
+  stage: triggers
+  trigger:
+    include: 01-fichiers/03-wordcount/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 01-fichiers/03-wordcount/*.c
+
+trigger_exo1.4:
+  stage: triggers
+  trigger:
+    include: 01-fichiers/04-copie/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 01-fichiers/04-copie/*.c
+
+trigger_exo1.5:
+  stage: triggers
+  trigger:
+    include: 01-fichiers/05-getchar/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 01-fichiers/05-getchar/*.c
+
+trigger_exo1.6:
+  stage: triggers
+  trigger:
+    include: 01-fichiers/06-getchar-tampon/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 01-fichiers/06-getchar-tampon/*.c
+
+trigger_exo2.1:
+  stage: triggers
+  trigger:
+    include: 02-repertoires/01-type/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 02-repertoires/01-type/*.c
+
+trigger_exo2.2:
+  stage: triggers
+  trigger:
+    include: 02-repertoires/02-affichage/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 02-repertoires/02-affichage/*.c
+
+trigger_exo2.3:
+  stage: triggers
+  trigger:
+    include: 02-repertoires/03-liste-repertoire/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 02-repertoires/03-liste-repertoire/*.c
+
+trigger_exo2.4:
+  stage: triggers
+  trigger:
+    include: 02-repertoires/04-copie-arbo/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 02-repertoires/04-copie-arbo/*.c
+
+trigger_exo2.5:
+  stage: triggers
+  trigger:
+    include: 02-repertoires/05-cacher-fichier/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 02-repertoires/05-cacher-fichier/*.c
+
+trigger_exo3.1:
+  stage: triggers
+  trigger:
+    include: 03-processus/01-creation-fils/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 03-processus/01-creation-fils/*.c
+
+trigger_exo3.2:
+  stage: triggers
+  trigger:
+    include: 03-processus/02-multiple-fils/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 03-processus/02-multiple-fils/*.c
+
+trigger_exo3.3:
+  stage: triggers
+  trigger:
+    include: 03-processus/03-lecture-fichier/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 03-processus/03-lecture-fichier/*.c
+
+trigger_exo4.1:
+  stage: triggers
+  trigger:
+    include: 04-exec/01-execution-cmd/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 04-exec/01-execution-cmd/*.c
+
+trigger_exo4.2:
+  stage: triggers
+  trigger:
+    include: 04-exec/02-parexec/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 04-exec/02-parexec/*.c
+
+trigger_exo4.3:
+  stage: triggers
+  trigger:
+    include: 04-exec/03-myexeclp/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 04-exec/03-myexeclp/*.c
+
+trigger_exo5.1:
+  stage: triggers
+  trigger:
+    include: 05-redirections/01-presence/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 05-redirections/01-presence/*.c
+
+trigger_exo5.2:
+  stage: triggers
+  trigger:
+    include: 05-redirections/02-tube/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 05-redirections/02-tube/*.c
+
+trigger_exo5.3:
+  stage: triggers
+  trigger:
+    include: 05-redirections/03-criblage/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 05-redirections/03-criblage/*.c
+
+trigger_exo5.4:
+  stage: triggers
+  trigger:
+    include: 05-redirections/04-calculatrice/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 05-redirections/04-calculatrice/*.c
+
+trigger_exo6.1:
+  stage: triggers
+  trigger:
+    include: 06-signaux/01-compteur/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 06-signaux/01-compteur/*.c
+
+trigger_exo6.2:
+  stage: triggers
+  trigger:
+    include: 06-signaux/02-masquer/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 06-signaux/02-masquer/*.c
+
+trigger_exo6.3:
+  stage: triggers
+  trigger:
+    include: 06-signaux/03-trier/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 06-signaux/03-trier/*.c
+
+trigger_exo6.4:
+  stage: triggers
+  trigger:
+    include: 06-signaux/04-coupleur/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 06-signaux/04-coupleur/*.c
+
+trigger_exo6.5:
+  stage: triggers
+  trigger:
+    include: 06-signaux/05-concurrence/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - 06-signaux/05-concurrence/*.c
