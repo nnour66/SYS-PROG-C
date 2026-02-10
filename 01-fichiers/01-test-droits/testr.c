@@ -17,7 +17,7 @@
 /**
  * La légendaire fonction raler() directement appelée par la macro CHK()
  */
-noreturn void
+noreturn void 
 raler(const char *msg)
 {
     perror(msg);
@@ -27,8 +27,37 @@ raler(const char *msg)
 int
 main(int argc, char *argv[])
 {
-    (void) argc;  // à supprimer
-    (void) argv;  // à supprimer
+    if (argc!=2)
+    {
+        fprintf(stderr,"Usage: %s nom_fichier\n", argv[0]);
+        return 1;
+    }
+
+    char* filename = argv[1];
+    char r = '-';
+    char w = '-';
+    int fd;
+    
+    fd = open(filename, O_RDONLY);
+    if (fd>=0)
+    {
+        r='R';
+        CHK(close(fd));
+    }else if(errno!=EACCES){
+        raler("open 1");
+    }
+
+    fd= open(filename, O_WRONLY);
+    if (fd>=0)
+    {
+        w='W';
+        CHK(close(fd));
+    }else if (errno!=EACCES)
+    {
+        raler("open 2");
+    }
+
+    printf("%s: %c%c\n",filename,r,w);
 
     return 0;
 }
