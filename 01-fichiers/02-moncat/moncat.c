@@ -27,8 +27,26 @@ raler(const char *msg)
 int
 main(int argc, char *argv[])
 {
-    (void) argc;  // à supprimer
-    (void) argv;  // à supprimer
+    if (argc!=2)
+    {
+        fprintf(stderr,"Usage : %s nom_fichier\n", argv[0]);
+        exit(1);
+    }
+    char* filename= argv[1];
+    int fd;
+    char buffer[1000];
+    ssize_t nb_caracteres_lu;
+    CHK(fd=open(filename,O_RDONLY));
+    while ((nb_caracteres_lu=read(fd, buffer, sizeof(buffer)))>0)
+    {
+        fwrite(buffer, 1, nb_caracteres_lu, stdout);
+    }
+
+    if (nb_caracteres_lu==-1)
+    {
+        raler("read probleme");
+    }
+    CHK(close(fd));
 
     return 0;
 }
