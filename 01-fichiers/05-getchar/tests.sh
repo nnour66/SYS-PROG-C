@@ -25,7 +25,7 @@ test_01() {
 }
 
 test_02() {
-    echo -n "test 03 - stdin to stdout (text input): "
+    echo -n "test 02 - stdin to stdout (text input): "
 
     echo abcdefgh > "$TMP.in"
 
@@ -43,7 +43,7 @@ test_02() {
 }
 
 test_03() {
-    echo -n "test 04 - stdin to stdout (binary input): "
+    echo -n "test 03 - stdin to stdout (binary input): "
 
     head -c 1024 /dev/urandom > "$TMP.in"
 

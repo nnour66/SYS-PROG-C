@@ -2,12 +2,20 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define MYEOF 0 // à remplacer par une valeur adéquate
+#define MYEOF (-1) // à remplacer par une valeur adéquate
 
 int
 mygetchar(void)
 {
-    return MYEOF; // à modifier
+    unsigned char c;
+    ssize_t s=read(STDIN_FILENO, &c, 1);
+    if (s==1)
+    {
+        return (int)c;
+    }else
+    {
+       return MYEOF; 
+    }
 }
 
 int
