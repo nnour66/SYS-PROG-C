@@ -54,7 +54,7 @@ test_02() {
 }
 
 test_03() {
-    echo -n "test 04 - list existing directory: "
+    echo -n "test 03 - list existing directory: "
 
     mkdir -p "$TMP.dir" ; touch "$TMP.dir/toto" ; touch "$TMP.dir/tata"
     ls "$TMP.dir" | sort -d > "$TMP.expected"

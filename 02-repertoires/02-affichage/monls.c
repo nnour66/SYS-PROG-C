@@ -26,8 +26,25 @@ raler(const char *msg)
 int
 main(int argc, char *argv[])
 {
-    (void) argc; // à supprimer
-    (void) argv; // à supprimer
+    if (argc!=2)
+    {
+        fprintf(stderr, "Usage : %s nom_repertoire\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    DIR *dir=opendir(argv[1]);
+    if (dir==NULL)
+    {
+        raler("Problème d'allocation");
+    }
+    struct dirent *entry;
 
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (entry->d_name[0] == '.')
+            continue;  
+
+        printf("%s\n", entry->d_name);
+    }
+    closedir(dir);
     return 0;
 }
