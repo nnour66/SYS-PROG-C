@@ -25,8 +25,18 @@ raler(const char *msg)
 int
 main(int argc, char *argv[])
 {
-    (void) argc; // à supprimer
-    (void) argv; // à supprimer
+    if (argc!=2)
+    {
+        fprintf(stderr, "Usage : %s nom_du_fichier\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
-    return 0;
+    struct stat s;
+    CHK(stat(argv[1], &s));
+
+    if (S_ISDIR(s.st_mode))
+        return 0;
+    else
+        return 1;
+    
 }
