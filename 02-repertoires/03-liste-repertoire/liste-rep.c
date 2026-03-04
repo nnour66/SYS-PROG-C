@@ -58,11 +58,61 @@ concatener(char *result, int size, char *format, ...)
     return;
 }
 
+//faut faire une fonction auxiliaire pour gerer la recurrence
+void 
+dir_rec(const char* path, int depth)
+{
+    errno = 0;
+    printf("%s\n", path);
+    if (depth==0) return;
+    
+    DIR * dir=opendir(path);
+    if (dir==NULL) raler("opendir");
+    
+    struct dirent * entry;
+    while ((entry=readdir(dir))!=NULL)
+    {
+        if (strcmp(entry->d_name,".")==0 || strcmp(entry->d_name, "..")==0)
+        {
+            continue;
+        }
+        char child[PATH_MAX];
+        concatener(child, PATH_MAX, "%s/%s", (char *)path, entry->d_name);
+        struct stat s;
+        CHK(lstat(child, &s));;
+        if (S_ISDIR(s.st_mode))
+        {
+            dir_rec(child, depth-1);
+        }
+    }
+    if (errno != 0) raler("readdir");
+    CHK(closedir(dir));
+}
 int
 main(int argc, char *argv[])
 {
-    (void) argc; // à supprimer
-    (void) argv; // à supprimer
+    if (argc!=3)
+    {
+        fprintf(stderr, "Usage : %s repertoire profondeur", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    //au cas ou la profondeur n'a pas la bonne valeur
+    char *end = NULL;
+    long depth = strtol(argv[2], &end, 10);
 
+    if (end == argv[2] || *end != '\0' || depth < 1) {
+        fprintf(stderr, "Profondeur invalide : %s\n", argv[2]);
+        exit(EXIT_FAILURE);
+    }
+    
+    struct stat s;
+    CHK(lstat(argv[1], &s));
+    if(!S_ISDIR(s.st_mode)){
+        fprintf(stderr, "%s n'est pas un repertoire", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+
+    dir_rec(argv[1], (int)depth);
+    
     return 0;
 }
