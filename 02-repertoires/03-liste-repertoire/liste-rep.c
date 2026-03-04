@@ -62,7 +62,7 @@ concatener(char *result, int size, char *format, ...)
 void 
 dir_rec(const char* path, int depth)
 {
-    errno = 0;
+    
     printf("%s\n", path);
     if (depth==0) return;
     
@@ -70,6 +70,7 @@ dir_rec(const char* path, int depth)
     if (dir==NULL) raler("opendir");
     
     struct dirent * entry;
+    errno = 0;
     while ((entry=readdir(dir))!=NULL)
     {
         if (strcmp(entry->d_name,".")==0 || strcmp(entry->d_name, "..")==0)
@@ -100,7 +101,7 @@ main(int argc, char *argv[])
     char *end = NULL;
     long depth = strtol(argv[2], &end, 10);
 
-    if (end == argv[2] || *end != '\0' || depth < 1) {
+    if (end == argv[2] || *end != '\0' || depth < 1 || depth > 9) {
         fprintf(stderr, "Profondeur invalide : %s\n", argv[2]);
         exit(EXIT_FAILURE);
     }
