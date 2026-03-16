@@ -17,7 +17,7 @@ ASAN_OPTIONS=detect_leaks=1
 test_01() {
     echo -n "test 01 - fork() error handling: "
 
-    ! grep -q "case -1:" "$FILE" && {
+    ! cat "$FILE" | tr -d ' ' | grep -q "case-1:" && {
         echo "[FAIL] -> no handling of fork() failure (-1 case) found in source"
         return 1
     }
@@ -77,20 +77,20 @@ test_03() {
     local np=$(( RANDOM % 9 + 1))
 
     ! grep "sleep(2)" "$FILE" > /dev/null && {
-	echo "[FAIL] -> child should call sleep(2) before exiting"
-	return 1
+        echo "[FAIL] -> child should call sleep(2) before exiting"
+        return 1
     }
     
     $PROG "$np" > "$TMP.out" 2> "$TMP.err" &
     local pid=$!
     sleep 1
 
-    pgrep -P "$pid" | sort -d > "$TMP.children"
+    ps -o pid= -o ppid= | grep " $pid$" | tr -s ' ' | cut -d ' ' -f2 | sort -d > "$TMP.children"
     local nb=$(cat "$TMP.children" | wc -l)
 
     [ "$nb" -ne "$np" ] && {
-	echo "[FAIL] -> $nb child processes found, $np expected"
-	return 1
+        echo "[FAIL] -> $nb child processes found, $np expected"
+        return 1
     }
 
     # attendre la fin du processus parent
@@ -108,8 +108,8 @@ test_04() {
     local np=$(( RANDOM % 9 + 1))
 
     ! grep "sleep(2)" "$FILE" > /dev/null && {
-	echo "[FAIL] -> child should call sleep(2) before exiting"
-	return 1
+        echo "[FAIL] -> child should call sleep(2) before exiting"
+        return 1
     }
 
     $PROG "$np" > "$TMP.out" 2> "$TMP.err" &
@@ -127,8 +127,8 @@ test_04() {
     cat "$TMP.out" | cut -d ' ' -f1 | sort -d > "$TMP.pids"
 
     ! cmp -s "$TMP.pids" "$TMP.children" && {
-	echo "[FAIL] -> output differs from what expected"
-	return 1
+        echo "[FAIL] -> output differs from what expected"
+        return 1
     }
 
     echo "............[PASS]"

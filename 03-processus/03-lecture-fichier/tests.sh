@@ -15,7 +15,7 @@ umask 0077		    # permissions des fichiers temporaires
 test_01() {
     echo -n "test 01 - fork() error handling: "
 
-    ! grep -q "case -1:" "$FILE" && {
+    ! cat "$FILE" | tr -d ' ' | grep -q "case-1:" && {
         echo "[FAIL] -> no handling of fork() failure (-1 case) found in source"
         return 1
     }
@@ -62,13 +62,18 @@ test_02() {
 test_03() {
     echo -n "test 03 - program creates child process: "
 
+    ! grep "sleep(2)" "$FILE" > /dev/null && {
+        echo "[FAIL] -> child should call sleep(2) before exiting"
+        return 1
+    }
+
     LC_ALL=C tr -dc "A-Za-z0-9\n" < /dev/urandom | head -c 1024000 > "$TMP.in"
 
     $PROG "$TMP.in" > "$TMP.out" 2> "$TMP.err" &
     local pid=$!
     sleep 1
 
-    pgrep -P "$pid" | sort -d > "$TMP.children"
+    ps -o pid= -o ppid= | grep " $pid$" | tr -s ' ' | cut -d ' ' -f2 | sort -d > "$TMP.children"
     local nb=$(cat "$TMP.children" | wc -l)
 
     [ "$nb" -ne "1" ] && {
@@ -88,6 +93,11 @@ test_03() {
 
 test_04() {
     echo -n "test 04 - program output: "
+
+    ! grep "sleep(2)" "$FILE" > /dev/null && {
+        echo "[FAIL] -> child should call sleep(2) before exiting"
+        return 1
+    }
 
     LC_ALL=C tr -dc "A-Za-z0-9\n" < /dev/urandom | head -c 1024000 > "$TMP.in"
 

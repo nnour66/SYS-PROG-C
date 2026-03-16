@@ -55,6 +55,8 @@ Lorsqu'un processus a terminé la lecture du fichier, il doit fermer le descript
 int close(int fildes)
 ```
 
+Le fils doit attendre 2 secondes (via un appel à la fonction `sleep()`) avant de se terminer.
+
 Enfin, le processus père doit attendre la fin du processus fils via la primitive :
 
 ```c

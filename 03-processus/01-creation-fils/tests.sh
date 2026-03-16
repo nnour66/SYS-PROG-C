@@ -17,7 +17,7 @@ ASAN_OPTIONS=detect_leaks=1
 test_01() {
     echo -n "test 01 - fork() error handling: "
 
-    ! grep -q "case -1:" "$FILE" && {
+    ! cat "$FILE" | tr -d ' ' | grep -q "case-1:" && {
         echo "[FAIL] -> no handling of fork() failure (-1 case) found in source"
         return 1
     }
@@ -39,7 +39,7 @@ test_02() {
     sleep 1  # attendre que l'enfant soit créé
 
     # récupérer le PID de l'enfant
-    local child=$(ps --no-headers -o pid --ppid "$pid" | tr -d ' ')
+    local child=$(ps -o pid= -o ppid= | grep " $pid$" | tr -s ' ' | cut -d ' ' -f2)
     [ -z "$child" ] && {
         echo "[FAIL] -> no child process created by program"
         return 1

@@ -30,7 +30,7 @@ default: /* processus père */
 }
 ```
 
-Chaque processus fils doit attendre 1 seconde (via un appel à la fonction `sleep()`) avant de se terminer avec la fonction :
+Chaque processus fils doit attendre 2 secondes (via un appel à la fonction `sleep()`) avant de se terminer avec la fonction :
 
 ```c
 void exit(int status)
