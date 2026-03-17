@@ -27,5 +27,20 @@ raler(const char *msg)
 int
 main(void)
 {
-    return 0;
+    pid_t pid=fork();
+    switch (pid)
+    {
+    case -1 :
+        raler("fork");
+    case 0 :
+        sleep(2);
+        exit(getpid()%10);
+    }
+    int status;
+    pid=wait(&status);
+    CHK(pid);
+    if (WIFEXITED(status))
+    {
+        printf("%jd %jd %d\n", (intmax_t)getpid(), (intmax_t)pid, WEXITSTATUS(status));
+    }
 }
