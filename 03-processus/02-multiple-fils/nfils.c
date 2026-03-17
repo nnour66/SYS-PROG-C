@@ -27,8 +27,35 @@ raler(const char *msg)
 int
 main(int argc, char *argv[])
 {
-    (void) argc; // à supprimer
-    (void) argv; // à supprimer
+    if (argc!=2)
+    {
+        fprintf(stderr, "Usage : %s n\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
+    int n = atoi(argv[1]);
+    if (n < 1 || n > 9) {
+        fprintf(stderr, "n doit etre compris entre 1 et 9\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    for (int i = 0; i < n; i++)
+    {
+        pid_t pid=fork();
+        switch(pid){
+            case -1 : raler("fork");
+            case 0 : sleep(2); exit(0);
+        }
+    }
+    for (int i = 0; i < n; i++)
+    {
+        int status;
+        pid_t pid=wait(&status);
+        CHK(pid);
+        if (WIFEXITED(status))
+        {
+            printf("%jd %d\n", (intmax_t)pid, WEXITSTATUS(status));
+        }
+    }
     return 0;
 }
