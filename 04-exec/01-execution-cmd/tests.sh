@@ -5,6 +5,8 @@ PROG="./execmd"
 TMP=${TMP:=/tmp/test.$USER} # chemin des logs de test
 umask 0077		    # permissions des fichiers temporaires
 
+ASAN_OPTIONS=detect_leaks=1
+
 ######################################
 
 # Tests
@@ -48,7 +50,7 @@ test_02() {
 
     # program output
     ! $PROG ls "$TMP.ls" > "$TMP.out" 2> "$TMP.err" && {
-        echo "[FAIL] -> exit status != 0 when running \"$PROG ls <dir>\""
+        echo "[FAIL] -> expected exit status 0, or AddressSanitizer detected memory errors, see $TMP.err"
         return 1
     }
 
@@ -57,7 +59,7 @@ test_02() {
         return 1
     }
 
-    rm -rf "$TMP.ls" "$TMP.expected" "$TMP.out" "$TMP.err"
+    rm -rf "$TMP".*
     echo "[PASS]"
 }
 
@@ -71,37 +73,17 @@ test_03() {
 
     # program output
     ! $PROG echo "$msg" > "$TMP.out" 2> "$TMP.err" && {
-        echo "[FAIL] -> exit status != 0 when running \"$PROG echo <string>\""
+        echo "[FAIL] -> expected exit status 0, or AddressSanitizer detected memory errors, see $TMP.err"
         return 1
     }
 
     ! cmp -s "$TMP.expected" "$TMP.out" && {
-        echo "[FAIL] -> output differs from echo, compare $TMP.expected and $TMP.actual"
+        echo "[FAIL] -> output differs from echo, compare $TMP.expected and $TMP.out"
         return 1
     }
 
-    rm -f "$TMP.expected" "$TMP.out" "$TMP.err"
+    rm -f "$TMP".*
     echo "...........[PASS]"
-}
-
-test_04() {
-    echo -n "test 04 - no memory leaks (valgrind): "
-
-    ! which valgrind > /dev/null 2>&1 && {
-        echo "[FAIL] -> please install valgrind"
-        exit 1
-    }
-
-    valgrind --leak-check=full --error-exitcode=100 \
-             --log-file=$TMP.valgrind.log \
-             $PROG echo "hello world" > /dev/null 2>&1
-
-    [ "$?" == "100" ] && {
-        echo "[FAIL] -> memory pb please check $TMP.valgrind.log"
-        return 1
-    }
-
-    echo "............[PASS]"
 }
 
 ######################################
@@ -115,7 +97,6 @@ run_test() {
         1) test_01 ;;
         2) test_02 ;;
         3) test_03 ;;
-        4) test_04 ;;
         *)
             echo "Unknown test: $1"
             exit 2
@@ -131,7 +112,7 @@ run_test() {
 
 if [ "$#" -eq 0 ]; then
     # Aucun argument → tous les tests
-    for t in 1 2 3 4; do
+    for t in 1 2 3; do
         run_test "$t" || exit 1
     done
 else
@@ -141,4 +122,4 @@ else
     done
 fi
 
-rm -rf $TMP.*
+rm -rf "$TMP".*
