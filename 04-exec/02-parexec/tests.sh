@@ -6,6 +6,8 @@ FILE="$PROG.c"
 TMP=${TMP:=/tmp/test.$USER} # chemin des logs de test
 umask 0077		    # permissions des fichiers temporaires
 
+ASAN_OPTIONS=detect_leaks=1
+
 ######################################
 
 # Tests
@@ -54,7 +56,6 @@ test_01() {
         echo "[FAIL] -> expected error message on stderr when cmd is not found"
         return 1
     }
-
     
     echo "........[PASS]"
 }
@@ -83,17 +84,17 @@ test_03() {
     done
 
     # program output
-    ! $PROG "$n" "echo" "salut" | sort -d > "$TMP.out" && {
-        echo "[FAIL] -> expected zero exit status"
+    ! $PROG "$n" "echo" "salut" | sort -d > "$TMP.out" 2> "$TMP.err" && {
+        echo "[FAIL] -> expected exit status 0, or AddressSanitizer detected memory errors, see $TMP.err"
         return 1
     }
 
-    ! cmp -s "$TMP.expected" "$TMP.out" && {
+    ! cmp -s "$TMP.out" "$TMP.expected" && {
         echo "[FAIL] -> output differs from reference file (n=$n), check $TMP.expected and $TMP.out"
         return 1
     }
 
-    rm -f "$TMP.expected" "$TMP.out"
+    rm -f "$TMP".*
     echo "[PASS]"
 }
 
@@ -107,39 +108,16 @@ EOF
     chmod +x "$TMP.cmd.sh"
 
     # run program: second execution should fail with exit code 1
-    $PROG 2 "$TMP.cmd.sh" > /dev/null 2>&1
-    local rc=$?
+    $PROG 2 "$TMP.cmd.sh" > /dev/null 2> "$TMP.err"
+    local rc="$?"
 
     [ "$rc" -ne 1 ] && {
         echo "[FAIL] -> expected return code 1, got $rc"
         return 1
     }
 
-    rm -f "$TMP.cmd.sh"
+    rm -f "$TMP".*
     echo "........[PASS]"
-}
-
-test_05() {
-    echo -n "test 05 - no memory leaks (valgrind): "
-
-    ! which valgrind > /dev/null 2>&1 && {
-        echo "[FAIL] -> please install valgrind"
-        exit 1
-    }
-
-    # random number between 1 and 9
-    local n=$((RANDOM % 9 + 1))
-
-    valgrind --leak-check=full --error-exitcode=100 \
-             --log-file=$TMP.valgrind.log \
-             $PROG "$n" "echo" "hello world" > /dev/null 2>&1
-
-    [ "$?" == "100" ] && {
-        echo "[FAIL] -> memory pb please check $TMP.valgrind.log"
-        return 1
-    }
-
-    echo "................[PASS]"
 }
 
 ######################################
@@ -154,7 +132,6 @@ run_test() {
         2) test_02 ;;
         3) test_03 ;;
         4) test_04 ;;
-        5) test_05 ;;
         *)
             echo "Unknown test: $1"
             exit 2
@@ -170,7 +147,7 @@ run_test() {
 
 if [ "$#" -eq 0 ]; then
     # Aucun argument → tous les tests
-    for t in 1 2 3 4 5; do
+    for t in 1 2 3 4; do
         run_test "$t" || exit 1
     done
 else
@@ -180,4 +157,4 @@ else
     done
 fi
 
-rm -rf $TMP.*
+rm -rf "$TMP".*
