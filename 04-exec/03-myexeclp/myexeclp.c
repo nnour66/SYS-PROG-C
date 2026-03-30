@@ -1,6 +1,8 @@
+#include <asm-generic/errno-base.h>
 #include <dirent.h>
 #include <errno.h>
 #include <limits.h>
+#include <linux/limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,11 +13,6 @@
 #define MAX_ARG 5
 #define INCREMENT_REALLOC 10
 
-/** fonction qui sépare la chaine de caractères 'chaine'
- *  avec tous les séparateurs présents dans 'separateurs'
- *  renvoie un tableau NULL-terminated de mots
- *  utilise la mémoire de chaine pour cela (modifie la chaine) !
- */
 char **
 separe(char *chaine, const char *separateurs)
 {
@@ -28,91 +25,157 @@ separe(char *chaine, const char *separateurs)
     m = 0;
     i = 0;
     while (chaine[i] != 0) {
-        // saute un séparateur
         for (s = 0 ; separateurs[s] != '\0' ; s++)
             if (chaine[i] == separateurs[s])
                 break;
         if (separateurs[s] != '\0') {
-            // met une fin de chaine à la place du séparateur et avance
             chaine[i++] = '\0';
-            continue; // les séparateurs n'ont pas été épuisés
+            continue;
         }
 
         if (chaine[i] != 0)
             tab[m++] = chaine + i;
         if (m == size) {
-            // si j'atteins la limite de mon tableau, je l'agrandis.
             size += INCREMENT_REALLOC;
             tab = realloc(tab, size * sizeof *tab);
             if (tab == NULL)
                 return NULL;
         }
-        // saute les caractères non séparateurs
         for ( ; chaine[i] != '\0' ; i++) {
             for (s = 0 ; separateurs[s] != '\0' ; s++)
                 if (chaine[i] == separateurs[s])
                     break;
             if (separateurs[s] != '\0')
-                break; // trouvé un caractère séparateur : passer au suivant
+                break;
         }
     }
     tab[m] = NULL;
     return tab;
 }
 
-/**
- * Fonction à compléter
- */
 int
-myexeclp(const char *file, const char *arg, ...)
+myexeclp(const char *file, const char *premier_arg, ...)
 {
-    (void) file; // à supprimer
-    (void) arg;  // à supprimer
+    char * chemin      = getenv("PATH");
+    if (chemin == NULL) {
+        errno = ENOENT;
+        return -1;
+    }
 
+    char * chemin_copy = strdup(chemin);
+    if ( chemin_copy == NULL){
+        errno = ENOMEM;
+        return -1;
+    }
+
+    char ** repertoire = separe(chemin_copy, ":");
+    int idx = 0;
+    DIR * dossier;
+    struct dirent * entree;
+
+    va_list ap;
+    va_start(ap, premier_arg);
+    int j = 0;
+    char *args[MAX_ARG + 2];
+    args[j++] = (char *)premier_arg;
+    char *tmp;
+
+    while ((tmp = va_arg(ap, char *)) != NULL) {
+        if (j >= MAX_ARG + 1) {
+            errno = E2BIG;
+            va_end(ap);
+            free(chemin_copy);
+            free(repertoire);
+            return -1;
+        }
+        args[j++] = tmp;
+    }
+    args[j] = NULL;
+    va_end(ap);
+
+    char fullpath[PATH_MAX];
+
+    while ( repertoire[idx] != NULL ) {
+    
+        dossier = opendir(repertoire[idx]);
+        if ( dossier == NULL){
+            if (errno == ENOTDIR) {
+                free(chemin_copy);
+                free(repertoire);
+                return -1;            
+            }
+            idx +=1;
+            continue;
+        }
+        while ( (entree = readdir(dossier)) != NULL) {
+            if ( strcmp(entree->d_name, file) == 0) 
+            {
+                snprintf(fullpath, sizeof(fullpath), "%s/%s", repertoire[idx], file);
+                if (access(fullpath, X_OK) != 0) {
+                    errno = EACCES;
+                    free(chemin_copy);
+                    free(repertoire);
+                    return -1;
+                }
+                execve( fullpath, args, NULL);
+                free(chemin_copy);
+                free(repertoire);
+                return -1;
+            }
+        }
+
+        closedir(dossier);
+        idx  += 1;
+    }
+
+    free(chemin_copy);
+    free(repertoire);
+    errno = ENOENT;
     return -1;
 }
 
 int
-main(int argc, char *argv [])
+main(int nb_args, char *tab_args[])
 {
-    if (argc < 2) {
-        fprintf(stderr, "usage: %s fichier ...\n", argv [0]);
+    if (nb_args < 2) {
+        fprintf(stderr, "usage: %s fichier ...\n", tab_args[0]);
         exit(EXIT_FAILURE);
     }
 
-    switch (argc) {
+    switch (nb_args) {
     case 2:
-        myexeclp(argv[1], argv[1], NULL);
+        myexeclp(tab_args[1], tab_args[1], NULL);
         break;
 
     case 3:
-        myexeclp(argv[1], argv[1], argv[2], NULL);
+        myexeclp(tab_args[1], tab_args[1], tab_args[2], NULL);
         break;
 
     case 4:
-        myexeclp(argv[1], argv[1], argv[2], argv[3], NULL);
+        myexeclp(tab_args[1], tab_args[1], tab_args[2], tab_args[3], NULL);
         break;
 
     case 5:
-        myexeclp(argv[1], argv[1], argv[2], argv[3], argv[4], NULL);
+        myexeclp(tab_args[1], tab_args[1], tab_args[2], tab_args[3], tab_args[4], NULL);
         break;
 
     case 6:
-        myexeclp(argv[1], argv[1], argv[2], argv[3], argv[4], argv[5],
+        myexeclp(tab_args[1], tab_args[1], tab_args[2], tab_args[3], tab_args[4], tab_args[5],
                  NULL);
         break;
 
     case 7:
-        myexeclp(argv[1], argv[1], argv[2], argv[3], argv[4], argv[5],
-                 argv[6], NULL);
+        myexeclp(tab_args[1], tab_args[1], tab_args[2], tab_args[3], tab_args[4], tab_args[5],
+                 tab_args[6], NULL);
         break;
 
     case 8:
-        myexeclp(argv[1], argv[1], argv[2], argv[3], argv[4], argv[5],
-                 argv[6], argv[7], NULL);
+        myexeclp(tab_args[1], tab_args[1], tab_args[2], tab_args[3], tab_args[4], tab_args[5],
+                 tab_args[6], tab_args[7], NULL);
         break;
     }
 
     perror("myexeclp");
     return EXIT_FAILURE;
 }
+
