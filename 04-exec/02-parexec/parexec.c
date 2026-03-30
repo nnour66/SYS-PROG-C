@@ -28,13 +28,13 @@ raler(const char *msg)
  * Concatène et formate une chaîne de caractères dans un tampon fourni.
  *
  * Cette fonction utilise une liste d'arguments variables (à la manière de
- * printf) pour écrire une chaîne formatée dans `result`, sans dépasser la
- * taille maximale `size`. Elle s'appuie sur `vsnprintf` afin de prévenir les
+ * printf) pour écrire une chaîne formatée dans result, sans dépasser la
+ * taille maximale size. Elle s'appuie sur vsnprintf afin de prévenir les
  * débordements de mémoire. En cas d'erreur ou de troncature, le programme est
  * arrêté.
  *
  * @param result Tampon de destination pour la chaîne résultante.
- * @param size   Taille maximale du tampon `result`.
+ * @param size   Taille maximale du tampon result.
  * @param format Chaîne de format (type printf).
  * @param ...    Arguments correspondant au format.
  */
@@ -54,11 +54,61 @@ concatener(char *result, int size, char *format, ...)
     return;
 }
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    (void) argc; // à supprimer
-    (void) argv; // à supprimer
+    if (argc < 3) 
+    {
+        fprintf(stderr, "Usage: %s nb cmd arg ...\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
+    int nb = atoi(argv[1]);
+    if (nb <= 0) 
+    {
+        fprintf(stderr, "nb doit etre strictement superieur a 0\n");
+        exit(EXIT_FAILURE);
+    }
+
+    char **args_fils = calloc(argc, sizeof *args_fils);
+    if (args_fils == NULL)
+        raler("calloc");
+   
+    char buff[16];
+    for (int i = 2; i < argc; i++) 
+        args_fils[i - 2] = argv[i];     
+
+    args_fils[argc - 1] = NULL;
+    
+    for (int i = 0; i < nb; i++) 
+    {
+        switch (fork()) 
+        {
+        case -1:
+            raler("fork");
+        case 0:
+            concatener(buff, sizeof(buff), "%d", i);
+            args_fils[argc - 2] = buff;
+            CHK(execvp(argv[2], args_fils));
+            raler("execvp");
+        default:
+            continue;    
+        }
+    }
+
+    free(args_fils);
+    
+    int status;
+    for (int i = 0; i < nb; i++) 
+    {
+        CHK(wait(&status));
+        if (WIFEXITED(status)) 
+        {
+            if (WEXITSTATUS(status) != 0)
+            {
+                fprintf(stderr, "Erreur d'exit du processus fils\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
     return 0;
 }
