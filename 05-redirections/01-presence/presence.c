@@ -51,15 +51,67 @@ concatener(char *result, int size, char *format, ...)
         exit(EXIT_FAILURE);
     }
     va_end(ap);
-
-    return;
 }
 
 int
 main(int argc, char *argv[])
 {
-    (void) argc; // à supprimer
-    (void) argv; // à supprimer
+    int status;
+    pid_t pid;
 
-    return 0;
+    if (argc != 2) {
+        fprintf(stderr, "Usage : %s username\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    switch (pid = fork()) {
+    case -1:
+        raler("fork");
+
+    case 0: {
+        int fd = open("toto", O_CREAT | O_WRONLY | O_TRUNC, 0666);
+        CHK(fd);
+        CHK(dup2(fd, STDOUT_FILENO));
+        CHK(close(fd));
+
+        execlp("ps", "ps", "-eo", "user:100", NULL);
+        raler("execlp ps");
+    }
+
+    default:
+        CHK(wait(&status));
+        if (!(WIFEXITED(status) && WEXITSTATUS(status) == 0)) {
+            fprintf(stderr, "ps failed\n");
+            return EXIT_FAILURE;
+        }
+        break;
+    }
+
+    switch (pid = fork()) {
+    case -1:
+        raler("fork");
+
+    case 0: {
+        int fdin = open("toto", O_RDONLY);
+        CHK(fdin);
+        CHK(dup2(fdin, STDIN_FILENO));
+        CHK(close(fdin));
+
+        int fdout = open("/dev/null", O_WRONLY);
+        CHK(fdout);
+        CHK(dup2(fdout, STDOUT_FILENO));
+        CHK(close(fdout));
+
+        execlp("grep", "grep", argv[1], NULL);
+        raler("execlp grep");
+    }
+
+    default:
+        CHK(wait(&status));
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+            printf("%s is connected\n", argv[1]);
+            return 0;
+        }
+        return 1;
+    }
 }
