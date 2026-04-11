@@ -36,15 +36,73 @@ raler(const char *msg)
 void
 trier(int *tab, int size)
 {
-    (void) tab;   // à supprimer
-    (void) size;  // à supprimer
+    for (int i = size-1; i > 0; i--)
+    {
+        for (int j = 0; j < i; j++)
+        {
+            if (tab[j+1]<tab[j])
+            {
+                int tmp=tab[j];
+                tab[j]=tab[j+1];
+                tab[j+1]=tmp;
+            } 
+        }
+    }
+
 }
+
+void
+handler(int sig){
+    (void)sig;
+    write(STDOUT_FILENO, "working\n", 8);
+    alarm(1);
+}
+
 
 int
 main(int argc, char *argv[])
 {
-    (void) argc; // à supprimer
-    (void) argv; // à supprimer
+    if (argc!=2)
+    {
+        fprintf(stderr, "Usage : %s taille_du_tableau\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    struct sigaction s={0};
+    int size=atoi(argv[1]);
+
+    if (size <= 0) {
+        fprintf(stderr, "La taille doit être un entier strictement positif\n");
+        exit(EXIT_FAILURE);
+    }
+
+    int* tab=malloc(size*sizeof(int));
+    if (tab==NULL)
+    {
+        raler("malloc");
+    }
+
+    srand(time(NULL));
+    for (int i = 0; i < size; i++)
+    {
+        tab[i]= rand() % 1001;
+    }
+
+    s.sa_flags=0;
+    CHK(sigemptyset(&s.sa_mask));
+    s.sa_handler=handler;
+    CHK(sigaction(SIGALRM, &s, NULL));
+
+    alarm(1);
+    trier(tab, size);
+    alarm(0);
+    
+    for (int i = 0; i < size; i++)
+    {
+        printf("%d\n", tab[i]);
+    }
+    
+    free(tab);
+    
 
     return 0;
 }
