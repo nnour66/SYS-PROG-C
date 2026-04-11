@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,8 +23,25 @@ raler(const char *msg)
     exit(EXIT_FAILURE);
 }
 
+volatile sig_atomic_t count=0;
+
+
+void handler(int sig){
+    (void)sig;
+    count ++;
+    printf("compteur: %d\n", count);
+}
+
 int
 main(void)
 {
+    struct sigaction s;
+    s.sa_flags=0;
+    sigemptyset(&s.sa_mask);
+    s.sa_handler=handler;
+    CHK(sigaction(SIGINT, &s, NULL));
+    while (count<5);
     return 0;
+    
+
 }
