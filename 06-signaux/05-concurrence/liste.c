@@ -50,6 +50,30 @@ inserer(int type, long long int val)
     tete    = e;
 }
 
+void
+print_and_detect(void)
+{
+    int type[NBSIG] = {0};
+
+    long long int pval = tete->val;
+    type[tete->type]++;
+    struct elem *tmp = tete->suiv;
+
+    while (tmp != NULL) {
+        if (tmp->type == 0) {
+            if (tmp->val != pval - 1)
+                fprintf(stderr, "error: %lld %lld\n", tmp->val, pval);
+
+            pval = tmp->val;
+        }
+        type[tmp->type]++;
+        tmp = tmp->suiv;
+    }
+
+    for (int i = 0 ; i < NBSIG ; i++)
+        printf("type %d: %d\n", i, type[i]);
+}
+
 int
 main (void)
 {

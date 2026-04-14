@@ -1,7 +1,7 @@
 # Programmation système - Concurrence
 
 Complétez le programme `liste.c` qui ajoute des éléments dans une liste de façon synchrone et asynchrone (via la réception de signaux).
-Le programme n'adment pas d'argument.
+Le programme n'admet pas d'argument.
 
 On cherche ici à mettre en évidence le problème de concurrence entre les parties synchrone et asynchrone d'un programme.
 Pour cela, on construit une structure de liste et une fonction pour insérer un élément d'un type donné dans la liste.
